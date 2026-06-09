@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Convert It — AppADay #033</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0e0e10;
+    --surface: #18181c;
+    --border: #2a2a32;
+    --accent: #7c6af7;
+    --accent-dim: #3d3580;
+    --text: #f0effe;
+    --muted: #7a798a;
+    --result: #c4beff;
+    --tab-active: #7c6af7;
+    --tab-inactive: #2a2a32;
+  }
+
+  html, body {
+    min-height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* HEADER */
+  .site-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+  .site-header a {
+    color: var(--muted);
+    text-decoration: none;
+  }
+  .site-header a:hover { color: var(--accent); }
+  .app-num { color: var(--accent); font-weight: 500; }
+
+  /* MAIN */
+  main {
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 40px 20px 60px;
+  }
+
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.2rem, 8vw, 3.2rem);
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+  }
+  h1 span { color: var(--accent); }
+
+  .tagline {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    margin-bottom: 36px;
+  }
+
+  /* CATEGORY TABS */
+  .tabs {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+  }
+  .tab {
+    background: var(--tab-inactive);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.07em;
+    padding: 7px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .tab:hover { color: var(--text); border-color: var(--accent-dim); }
+  .tab.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  /* CONVERTER CARD */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 28px 24px;
+  }
+
+  .unit-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 12px;
+    align-items: end;
+    margin-bottom: 20px;
+  }
+
+  .field label {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .field select, .field input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 16px;
+    padding: 11px 12px;
+    border-radius: 4px;
+    outline: none;
+    transition: border-color 0.15s;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .field select:focus, .field input:focus { border-color: var(--accent); }
+  .field select { cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a798a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+
+  .swap-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 18px;
+    width: 40px;
+    height: 44px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0;
+    transition: color 0.15s, border-color 0.15s;
+    flex-shrink: 0;
+  }
+  .swap-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+  /* INPUT ROW */
+  .input-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .result-box {
+    background: var(--bg);
+    border: 1px solid var(--accent-dim);
+    border-radius: 4px;
+    padding: 11px 12px;
+    font-size: 16px;
+    color: var(--result);
+    min-height: 46px;
+    display: flex;
+    align-items: center;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .equals {
+    font-size: 20px;
+    color: var(--accent);
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  /* FORMULA LINE */
+  .formula {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+    min-height: 20px;
+  }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    font-size: 11px;
+    color: var(--muted);
+    padding: 40px 20px 20px;
+    letter-spacing: 0.05em;
+  }
+  footer a { color: var(--muted); text-decoration: none; }
+  footer a:hover { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <span><span class="app-num">#033</span> &nbsp;·&nbsp; AppADay</span>
+  <a href="https://augustineiacopelli.github.io/appaday/">← Portfolio</a>
+</header>
+
+<main>
+  <h1>Convert <span>It</span></h1>
+  <p class="tagline">INSTANT UNIT CONVERSION</p>
+
+  <div class="tabs" id="tabs"></div>
+
+  <div class="card">
+    <div class="unit-row">
+      <div class="field">
+        <label>FROM</label>
+        <select id="fromUnit"></select>
+      </div>
+      <button class="swap-btn" id="swapBtn" title="Swap units">⇄</button>
+      <div class="field">
+        <label>TO</label>
+        <select id="toUnit"></select>
+      </div>
+    </div>
+    <div class="input-row">
+      <div class="field">
+        <input type="number" id="inputVal" value="1" placeholder="0" inputmode="decimal">
+      </div>
+      <div class="equals">=</div>
+      <div class="result-box" id="result">—</div>
+    </div>
+    <div class="formula" id="formula"></div>
+  </div>
+</main>
+
+<footer>
+  <a href="https://augustineiacopelli.github.io/appaday/">augustineiacopelli.github.io/appaday</a>
+</footer>
+
+<script>
+const CATEGORIES = {
+  Length: {
+    units: ['mm','cm','m','km','in','ft','yd','mi'],
+    labels: { mm:'Millimeters',cm:'Centimeters',m:'Meters',km:'Kilometers',in:'Inches',ft:'Feet',yd:'Yards',mi:'Miles' },
+    toBase: { mm:0.001,cm:0.01,m:1,km:1000,in:0.0254,ft:0.3048,yd:0.9144,mi:1609.344 },
+  },
+  Weight: {
+    units: ['mg','g','kg','t','oz','lb','st'],
+    labels: { mg:'Milligrams',g:'Grams',kg:'Kilograms',t:'Metric Tons',oz:'Ounces',lb:'Pounds',st:'Stone' },
+    toBase: { mg:0.000001,g:0.001,kg:1,t:1000,oz:0.0283495,lb:0.453592,st:6.35029 },
+  },
+  Temperature: {
+    units: ['C','F','K'],
+    labels: { C:'Celsius',F:'Fahrenheit',K:'Kelvin' },
+    toBase: null, // special handling
+  },
+  Volume: {
+    units: ['ml','l','fl_oz','cup','pt','qt','gal','m3'],
+    labels: { ml:'Milliliters',l:'Liters',fl_oz:'Fl. Ounces',cup:'Cups',pt:'Pints',qt:'Quarts',gal:'Gallons',m3:'Cubic Meters' },
+    toBase: { ml:0.001,l:1,fl_oz:0.0295735,cup:0.236588,pt:0.473176,qt:0.946353,gal:3.78541,m3:1000 },
+  },
+  Speed: {
+    units: ['mph','kph','ms','kn','fps'],
+    labels: { mph:'Miles/hr',kph:'Km/hr',ms:'Meters/sec',kn:'Knots',fps:'Feet/sec' },
+    toBase: { mph:0.44704,kph:0.277778,ms:1,kn:0.514444,fps:0.3048 },
+  },
+  Area: {
+    units: ['mm2','cm2','m2','km2','in2','ft2','ac','ha'],
+    labels: { mm2:'mm\u00B2',cm2:'cm\u00B2',m2:'m\u00B2',km2:'km\u00B2',in2:'in\u00B2',ft2:'ft\u00B2',ac:'Acres',ha:'Hectares' },
+    toBase: { mm2:0.000001,cm2:0.0001,m2:1,km2:1000000,in2:0.00064516,ft2:0.092903,ac:4046.86,ha:10000 },
+  },
+  Data: {
+    units: ['bit','B','KB','MB','GB','TB'],
+    labels: { bit:'Bits',B:'Bytes',KB:'Kilobytes',MB:'Megabytes',GB:'Gigabytes',TB:'Terabytes' },
+    toBase: { bit:0.125,B:1,KB:1024,MB:1048576,GB:1073741824,TB:1099511627776 },
+  },
+  Time: {
+    units: ['ms','s','min','hr','day','wk','mo','yr'],
+    labels: { ms:'Milliseconds',s:'Seconds',min:'Minutes',hr:'Hours',day:'Days',wk:'Weeks',mo:'Months',yr:'Years' },
+    toBase: { ms:0.001,s:1,min:60,hr:3600,day:86400,wk:604800,mo:2629800,yr:31557600 },
+  },
+};
+
+let activeCategory = 'Length';
+
+function convertTemp(val, from, to) {
+  let celsius;
+  if (from === 'C') celsius = val;
+  else if (from === 'F') celsius = (val - 32) * 5/9;
+  else celsius = val - 273.15;
+
+  if (to === 'C') return celsius;
+  if (to === 'F') return celsius * 9/5 + 32;
+  return celsius + 273.15;
+}
+
+function getTempFormula(from, to) {
+  if (from === to) return '';
+  const formulas = {
+    'CF': '\u00B0C \u00D7 9/5 + 32 = \u00B0F',
+    'FC': '(\u00B0F \u2212 32) \u00D7 5/9 = \u00B0C',
+    'CK': '\u00B0C + 273.15 = K',
+    'KC': 'K \u2212 273.15 = \u00B0C',
+    'FK': '(\u00B0F \u2212 32) \u00D7 5/9 + 273.15 = K',
+    'KF': '(K \u2212 273.15) \u00D7 9/5 + 32 = \u00B0F',
+  };
+  return formulas[from+to] || '';
+}
+
+function formatResult(val) {
+  if (!isFinite(val)) return 'Error';
+  const abs = Math.abs(val);
+  if (abs === 0) return '0';
+  if (abs >= 0.001 && abs < 1e12) {
+    // Use toPrecision for nice display, strip trailing zeros
+    let s = parseFloat(val.toPrecision(8)).toString();
+    return s;
+  }
+  return val.toExponential(4);
+}
+
+function convert() {
+  const cat = CATEGORIES[activeCategory];
+  const from = document.getElementById('fromUnit').value;
+  const to = document.getElementById('toUnit').value;
+  const raw = parseFloat(document.getElementById('inputVal').value);
+
+  if (isNaN(raw)) {
+    document.getElementById('result').textContent = '—';
+    document.getElementById('formula').textContent = '';
+    return;
+  }
+
+  let result;
+  let formula = '';
+
+  if (activeCategory === 'Temperature') {
+    result = convertTemp(raw, from, to);
+    formula = getTempFormula(from, to);
+  } else {
+    const baseVal = raw * cat.toBase[from];
+    result = baseVal / cat.toBase[to];
+    if (from !== to) {
+      const factor = cat.toBase[from] / cat.toBase[to];
+      formula = '1 ' + from + ' = ' + formatResult(factor) + ' ' + to;
+    }
+  }
+
+  document.getElementById('result').textContent = formatResult(result) + ' ' + to;
+  document.getElementById('formula').textContent = formula;
+}
+
+function buildTabs() {
+  const container = document.getElementById('tabs');
+  container.innerHTML = '';
+  Object.keys(CATEGORIES).forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'tab' + (cat === activeCategory ? ' active' : '');
+    btn.textContent = cat;
+    btn.addEventListener('click', () => {
+      activeCategory = cat;
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      buildSelects();
+      convert();
+    });
+    container.appendChild(btn);
+  });
+}
+
+function buildSelects() {
+  const cat = CATEGORIES[activeCategory];
+  const fromSel = document.getElementById('fromUnit');
+  const toSel = document.getElementById('toUnit');
+  const prevFrom = fromSel.value;
+  const prevTo = toSel.value;
+
+  fromSel.innerHTML = '';
+  toSel.innerHTML = '';
+
+  cat.units.forEach((u, i) => {
+    const label = cat.labels[u] + ' (' + u + ')';
+    const o1 = new Option(label, u);
+    const o2 = new Option(label, u);
+    fromSel.add(o1);
+    toSel.add(o2);
+  });
+
+  // Restore or set sensible defaults
+  if (cat.units.includes(prevFrom)) fromSel.value = prevFrom;
+  else fromSel.selectedIndex = 0;
+
+  if (cat.units.includes(prevTo)) toSel.value = prevTo;
+  else toSel.selectedIndex = Math.min(1, cat.units.length - 1);
+}
+
+document.getElementById('swapBtn').addEventListener('click', () => {
+  const f = document.getElementById('fromUnit');
+  const t = document.getElementById('toUnit');
+  const tmp = f.value;
+  f.value = t.value;
+  t.value = tmp;
+  convert();
+});
+
+document.getElementById('fromUnit').addEventListener('change', convert);
+document.getElementById('toUnit').addEventListener('change', convert);
+document.getElementById('inputVal').addEventListener('input', convert);
+
+buildTabs();
+buildSelects();
+convert();
+</script>
+</body>
+</html>
