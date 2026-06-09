@@ -22,8 +22,14 @@
     --tab-inactive: #2a2a32;
   }
 
-  html, body {
-    min-height: 100%;
+  html {
+    height: 100%;
+  }
+
+  body {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
     background: var(--bg);
     color: var(--text);
     font-family: 'DM Mono', monospace;
@@ -49,9 +55,14 @@
 
   /* MAIN */
   main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     max-width: 520px;
+    width: 100%;
     margin: 0 auto;
-    padding: 40px 20px 60px;
+    padding: 40px 20px;
   }
 
   h1 {
@@ -200,8 +211,9 @@
     text-align: center;
     font-size: 11px;
     color: var(--muted);
-    padding: 40px 20px 20px;
+    padding: 16px 20px;
     letter-spacing: 0.05em;
+    border-top: 1px solid var(--border);
   }
   footer a { color: var(--muted); text-decoration: none; }
   footer a:hover { color: var(--accent); }
